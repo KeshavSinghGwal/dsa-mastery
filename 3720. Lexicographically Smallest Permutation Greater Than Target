@@ -1,0 +1,128 @@
+class Solution {
+
+    public String lexGreaterPermutation(String s, String target) {
+
+        int[] count = new int[26];
+
+        // Count characters of s
+        for (char ch : s.toCharArray()) {
+            count[ch - 'a']++;
+        }
+
+        StringBuilder prefix = new StringBuilder();
+
+        // Try to make prefix equal to target
+        for (int i = 0; i < target.length(); i++) {
+
+            int curr = target.charAt(i) - 'a';
+
+            // We can use target[i]
+            if (count[curr] > 0) {
+
+                count[curr]--;
+                prefix.append(target.charAt(i));
+
+            } else {
+
+                // Cannot continue equal.
+                // Try a character greater than target[i].
+                for (int j = curr + 1; j < 26; j++) {
+
+                    if (count[j] > 0) {
+
+                        StringBuilder ans = new StringBuilder(prefix);
+
+                        ans.append((char) ('a' + j));
+                        count[j]--;
+
+                        // Add remaining characters in ascending order
+                        for (int k = 0; k < 26; k++) {
+                            while (count[k] > 0) {
+                                ans.append((char) ('a' + k));
+                                count[k]--;
+                            }
+                        }
+
+                        return ans.toString();
+                    }
+                }
+
+                // No greater character here.
+                // Need to backtrack.
+                break;
+            }
+        }
+
+        /*
+         * Backtrack.
+         *
+         * Restore characters from the prefix one by one
+         * and try to make one of them greater than target.
+         */
+        for (int i = prefix.length() - 1; i >= 0; i--) {
+
+            char ch = prefix.charAt(i);
+            count[ch - 'a']++;
+
+            int curr = target.charAt(i) - 'a';
+
+            // Find smallest character > target[i]
+            for (int j = curr + 1; j < 26; j++) {
+
+                if (count[j] > 0) {
+
+                    StringBuilder ans = new StringBuilder();
+
+                    // Keep target[0 ... i-1]
+                    ans.append(target, 0, i);
+
+                    // Put slightly larger character
+                    ans.append((char) ('a' + j));
+                    count[j]--;
+
+                    // Add remaining characters smallest first
+                    for (int k = 0; k < 26; k++) {
+                        while (count[k] > 0) {
+                            ans.append((char) ('a' + k));
+                            count[k]--;
+                        }
+                    }
+
+                    return ans.toString();
+                }
+            }
+        }
+
+        return "";
+    }
+}
+
+
+You are given two strings s and target, both having length n, consisting of lowercase English letters.
+
+Return the lexicographically smallest permutation of s that is strictly greater than target. If no permutation of s is lexicographically strictly greater than target, return an empty string.
+
+A string a is lexicographically strictly greater than a string b (of the same length) if in the first position where a and b differ, string a has a letter that appears later in the alphabet than the corresponding letter in b.
+
+ 
+
+Example 1:
+
+Input: s = "abc", target = "bba"
+
+Output: "bca"
+
+Explanation:
+
+The permutations of s (in lexicographical order) are "abc", "acb", "bac", "bca", "cab", and "cba".
+The lexicographically smallest permutation that is strictly greater than target is "bca".
+Example 2:
+
+Input: s = "leet", target = "code"
+
+Output: "eelt"
+
+Explanation:
+
+The permutations of s (in lexicographical order) are "eelt", "eetl", "elet", "elte", "etel", "etle", "leet", "lete", "ltee", "teel", "tele", and "tlee".
+The lexicographically smallest permutation that is strictly greater than target is "eelt".
