@@ -1,0 +1,171 @@
+class Solution {
+
+    public String lexPalindromicPermutation(String s, String target) {
+
+        int n = s.length();
+
+        // Frequency of characters in s
+        int[] freq = new int[26];
+
+        for (char ch : s.toCharArray()) {
+            freq[ch - 'a']++;
+        }
+
+        // Check whether palindrome is possible
+        int odd = 0;
+        char middle = 0;
+
+        for (int i = 0; i < 26; i++) {
+
+            if (freq[i] % 2 != 0) {
+                odd++;
+                middle = (char) ('a' + i);
+            }
+        }
+
+        if (odd > 1) {
+            return "";
+        }
+
+        // Frequency of characters in LEFT HALF
+        int[] half = new int[26];
+
+        for (int i = 0; i < 26; i++) {
+            half[i] = freq[i] / 2;
+        }
+
+        int len = n / 2;
+
+        String targetLeft = target.substring(0, len);
+
+        /*
+         * Try to make our left half exactly equal
+         * to target's left half.
+         */
+        int[] remaining = half.clone();
+
+        int matched = 0;
+
+        while (matched < len) {
+
+            int c = targetLeft.charAt(matched) - 'a';
+
+            if (remaining[c] == 0) {
+                break;
+            }
+
+            remaining[c]--;
+            matched++;
+        }
+
+        /*
+         * Case 1:
+         *
+         * We can make targetLeft exactly.
+         *
+         * Example:
+         * target = "abba"
+         * targetLeft = "ab"
+         */
+        if (matched == len) {
+
+            String palindrome =
+                    makePalindrome(targetLeft, middle);
+
+            if (palindrome.compareTo(target) > 0) {
+                return palindrome;
+            }
+        }
+
+        /*
+         * Case 2:
+         *
+         * We need the smallest left half
+         * that is GREATER than targetLeft.
+         *
+         * Start from the right and backtrack.
+         */
+        int start = Math.min(matched, len - 1);
+
+        for (int i = start; i >= 0; i--) {
+
+            /*
+             * If target[i] was previously consumed,
+             * put it back.
+             */
+            if (i < matched) {
+                int c = targetLeft.charAt(i) - 'a';
+                remaining[c]++;
+            }
+
+            int targetChar = targetLeft.charAt(i) - 'a';
+
+            /*
+             * Try the smallest character greater
+             * than target[i].
+             */
+            for (int c = targetChar + 1; c < 26; c++) {
+
+                if (remaining[c] == 0) {
+                    continue;
+                }
+
+                // IMPORTANT:
+                // Use a COPY so that our original count
+                // is not destroyed.
+                int[] temp = remaining.clone();
+
+                temp[c]--;
+
+                StringBuilder left = new StringBuilder();
+
+                // Keep prefix equal to target
+                left.append(targetLeft, 0, i);
+
+                // Put the smallest greater character
+                left.append((char) ('a' + c));
+
+                // Fill remaining characters in ascending order
+                for (int j = 0; j < 26; j++) {
+
+                    while (temp[j] > 0) {
+                        left.append((char) ('a' + j));
+                        temp[j]--;
+                    }
+                }
+
+                return makePalindrome(left.toString(), middle);
+            }
+        }
+
+        return "";
+    }
+
+
+    private String makePalindrome(String left, char middle) {
+
+        StringBuilder ans = new StringBuilder();
+
+        ans.append(left);
+
+        if (middle != 0) {
+            ans.append(middle);
+        }
+
+        ans.append(new StringBuilder(left).reverse());
+
+        return ans.toString();
+    }
+}
+
+
+3734. Lexicographically Smallest Palindromic Permutation Greater Than Target
+Solved
+Hard
+Topics
+premium lock icon
+Companies
+Hint
+You are given two strings s and target, each of length n, consisting of lowercase English letters.
+
+Return the lexicographically smallest string that is both a palindromic permutation of s and strictly greater than target. If no such permutation exists, return an empty string.
