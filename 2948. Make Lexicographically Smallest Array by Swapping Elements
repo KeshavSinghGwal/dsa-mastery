@@ -1,0 +1,57 @@
+import java.util.*;
+
+class Solution {
+    public int[] lexicographicallySmallestArray(int[] nums, int limit) {
+        int n = nums.length;
+
+        int[][] arr = new int[n][2];
+
+        // [value, original index]
+        for (int i = 0; i < n; i++) {
+            arr[i][0] = nums[i];
+            arr[i][1] = i;
+        }
+
+        // Sort by value
+        Arrays.sort(arr, (a, b) -> Integer.compare(a[0], b[0]));
+
+        int start = 0;
+
+        while (start < n) {
+            int end = start;
+
+            // Find one connected group
+            while (end + 1 < n &&
+                   (long) arr[end + 1][0] - arr[end][0] <= limit) {
+                end++;
+            }
+
+            // Get original indices of this group
+            int[] indices = new int[end - start + 1];
+
+            for (int i = start; i <= end; i++) {
+                indices[i - start] = arr[i][1];
+            }
+
+            // Sort indices
+            Arrays.sort(indices);
+
+            // Put sorted values into sorted positions
+            for (int i = 0; i < indices.length; i++) {
+                nums[indices[i]] = arr[start + i][0];
+            }
+
+            start = end + 1;
+        }
+
+        return nums;
+    }
+}
+
+You are given a 0-indexed array of positive integers nums and a positive integer limit.
+
+In one operation, you can choose any two indices i and j and swap nums[i] and nums[j] if |nums[i] - nums[j]| <= limit.
+
+Return the lexicographically smallest array that can be obtained by performing the operation any number of times.
+
+An array a is lexicographically smaller than an array b if in the first position where a and b differ, array a has an element that is less than the corresponding element in b. For example, the array [2,10,3] is lexicographically smaller than the array [10,2,3] because they differ at index 0 and 2 < 10.
