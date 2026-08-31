@@ -1,0 +1,73 @@
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public int[] nodesBetweenCriticalPoints(ListNode head) {
+
+        if (head == null || head.next == null || head.next.next == null) {
+            return new int[]{-1, -1};
+        }
+
+        int i = 2;
+
+        ArrayList<Integer> mini = new ArrayList<>();
+        ArrayList<Integer> maxi = new ArrayList<>();
+
+        ListNode temp = head.next;
+        ListNode left = head;
+        ListNode right = temp.next;
+
+        while (right != null) {
+
+            // Local maximum
+            if (temp.val > left.val && temp.val > right.val) {
+                maxi.add(i);
+            }
+
+            // Local minimum
+            else if (temp.val < left.val && temp.val < right.val) {
+                mini.add(i);
+            }
+
+            right = right.next;
+            temp = temp.next;
+            left = left.next;
+            i++;
+        }
+
+        // Total critical points
+        int total = mini.size() + maxi.size();
+
+        if (total < 2) {
+            return new int[]{-1, -1};
+        }
+
+        // Combine all critical point positions
+        ArrayList<Integer> critical = new ArrayList<>();
+
+        critical.addAll(mini);
+        critical.addAll(maxi);
+
+        Collections.sort(critical);
+
+        // Maximum distance
+        int max = critical.get(critical.size() - 1) - critical.get(0);
+
+        // Minimum distance
+        int min = Integer.MAX_VALUE;
+
+        for (int j = 1; j < critical.size(); j++) {
+            int diff = critical.get(j) - critical.get(j - 1);
+            min = Math.min(min, diff);
+        }
+
+        return new int[]{min, max};
+    }
+}
