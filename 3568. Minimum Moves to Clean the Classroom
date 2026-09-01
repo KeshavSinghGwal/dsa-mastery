@@ -1,0 +1,160 @@
+import java.util.*;
+
+class Solution {
+    public int minMoves(String[] classroom, int energy) {
+
+        int m = classroom.length;
+        int n = classroom[0].length();
+
+        int startRow = 0;
+        int startCol = 0;
+
+        // litterId[i][j] = bit number assigned to litter at (i,j)
+        int[][] litterId = new int[m][n];
+
+        for (int[] row : litterId) {
+            Arrays.fill(row, -1);
+        }
+
+        int litterCount = 0;
+
+        // Find S and assign an ID to every L
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+
+                char ch = classroom[i].charAt(j);
+
+                if (ch == 'S') {
+                    startRow = i;
+                    startCol = j;
+                }
+
+                if (ch == 'L') {
+                    litterId[i][j] = litterCount++;
+                }
+            }
+        }
+
+        // No litter
+        if (litterCount == 0) {
+            return 0;
+        }
+
+        /*
+            mask:
+            1 = litter still needs to be collected
+            0 = litter already collected
+
+            Example:
+            3 litters -> 111
+            collect first -> 110
+            collect second -> 100
+            collect third -> 000
+        */
+        int fullMask = (1 << litterCount) - 1;
+
+        /*
+            visited[row][col][energy][mask]
+
+            Means:
+            Have we already reached this exact state?
+        */
+        boolean[][][][] visited =
+                new boolean[m][n][energy + 1][1 << litterCount];
+
+        Queue<int[]> queue = new LinkedList<>();
+
+        // row, col, remainingEnergy, mask
+        queue.offer(new int[]{
+                startRow,
+                startCol,
+                energy,
+                fullMask
+        });
+
+        visited[startRow][startCol][energy][fullMask] = true;
+
+        int[] dr = {-1, 1, 0, 0};
+        int[] dc = {0, 0, -1, 1};
+
+        int moves = 0;
+
+        while (!queue.isEmpty()) {
+
+            int size = queue.size();
+
+            // Process one BFS level
+            while (size-- > 0) {
+
+                int[] state = queue.poll();
+
+                int r = state[0];
+                int c = state[1];
+                int currEnergy = state[2];
+                int mask = state[3];
+
+                // All litter collected
+                if (mask == 0) {
+                    return moves;
+                }
+
+                // No energy -> cannot make another move
+                if (currEnergy == 0) {
+                    continue;
+                }
+
+                for (int d = 0; d < 4; d++) {
+
+                    int nr = r + dr[d];
+                    int nc = c + dc[d];
+
+                    // Outside grid
+                    if (nr < 0 || nr >= m || nc < 0 || nc >= n) {
+                        continue;
+                    }
+
+                    // Obstacle
+                    if (classroom[nr].charAt(nc) == 'X') {
+                        continue;
+                    }
+
+                    char nextCell = classroom[nr].charAt(nc);
+
+                    // Normally one move costs 1 energy
+                    int nextEnergy = currEnergy - 1;
+
+                    // R resets energy
+                    if (nextCell == 'R') {
+                        nextEnergy = energy;
+                    }
+
+                    int nextMask = mask;
+
+                    // If we reach litter, mark it collected
+                    if (nextCell == 'L') {
+                        int id = litterId[nr][nc];
+
+                        nextMask = nextMask & ~(1 << id);
+                    }
+
+                    // Visit this state if we haven't seen it
+                    if (!visited[nr][nc][nextEnergy][nextMask]) {
+
+                        visited[nr][nc][nextEnergy][nextMask] = true;
+
+                        queue.offer(new int[]{
+                                nr,
+                                nc,
+                                nextEnergy,
+                                nextMask
+                        });
+                    }
+                }
+            }
+
+            moves++;
+        }
+
+        return -1;
+    }
+}
