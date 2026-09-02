@@ -1,0 +1,87 @@
+class Solution {
+    public boolean uniformArray(int[] nums1) {
+
+        int n = nums1.length;
+
+        if (n == 1) {
+            return true;
+        }
+
+        boolean canMakeEven = true;
+        boolean canMakeOdd = true;
+
+        for (int i = 0; i < n; i++) {
+
+            int x = nums1[i];
+
+            if (x % 2 == 1) {
+
+                if (!caneven(x, i, nums1)) {
+                    canMakeEven = false;
+                }
+
+                if (!canodd(x, i, nums1)) {
+                    canMakeOdd = false;
+                }
+
+            } else { 
+
+                if (!caneven(x, i, nums1)) {
+                    canMakeEven = false;
+                }
+
+                if (!canodd(x, i, nums1)) {
+                    canMakeOdd = false;
+                }
+            }
+        }
+
+        return canMakeEven || canMakeOdd;
+    }
+
+    boolean caneven(int x, int i, int[] nums1) {
+
+        if (x % 2 == 0) {
+            return true;
+        }
+
+        for (int j = 0; j < nums1.length; j++) {
+
+            if (j == i) {
+                continue;
+            }
+
+            int temp = x - nums1[j];
+
+            if (temp % 2 == 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    boolean canodd(int x, int i, int[] nums1) {
+
+        if (x % 2 != 0) {
+            return true;
+        }
+
+        for (int j = 0; j < nums1.length; j++) {
+
+            if (j == i) {
+                continue;
+            }
+
+            int temp = x - nums1[j];
+
+            if (temp % 2 != 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+///other solution ---------------->>>> just return true ;
