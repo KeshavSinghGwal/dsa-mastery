@@ -1,0 +1,31 @@
+class Solution {
+    public int distinctSubseqII(String s) {
+        final int MOD = 1_000_000_007;
+
+        // dp[i] = number of distinct subsequences
+        // ending with character ('a' + i)
+        long[] dp = new long[26];
+
+        for (char ch : s.toCharArray()) {
+            int index = ch - 'a';
+
+            long total = 1; // empty subsequence
+
+            for (long x : dp) {
+                total = (total + x) % MOD;
+            }
+
+            // All existing subsequences can be extended
+            // with current character.
+            dp[index] = total;
+        }
+
+        long answer = 0;
+
+        for (long x : dp) {
+            answer = (answer + x) % MOD;
+        }
+
+        return (int) answer;
+    }
+}
