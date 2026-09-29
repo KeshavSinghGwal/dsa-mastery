@@ -1,0 +1,42 @@
+class Solution {
+    Boolean[][][] dp;
+    public boolean hasValidPath(char[][] grid) {
+        int m = grid.length ;
+        int n = grid[0].length;
+        if((m + n - 1) % 2 != 0){
+            return false ;
+        }
+        if(grid[0][0]== ')'){
+            return false ;
+        }
+        dp = new Boolean[m][n][m + n];
+        return check(grid , 0 ,0,0);
+    }
+    private boolean check(char[][] grid , int i , int j , int val){
+        int m = grid.length;
+        int n = grid[0].length ;
+        if(grid[i][j] == '('){
+            val++ ;
+        }else{
+            val--;
+        }
+
+        if(val<0){
+            return false ;
+        }
+        if (i == m - 1 && j == n - 1) {
+            return val == 0;
+        }
+        if(dp[i][j][val] != null) {
+            return dp[i][j][val];
+        }
+        boolean result = false;
+        if(i+1<m){
+            result = check(grid , i+1 , j , val);
+        }
+        if(!result && j+1<n){
+            result = check(grid , i , j+1 , val);
+        }
+        return dp[i][j][val] = result;
+    }
+}
