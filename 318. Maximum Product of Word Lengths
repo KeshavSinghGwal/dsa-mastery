@@ -1,0 +1,35 @@
+class Solution {
+    public int maxProduct(String[] words) {
+        int n = words.length;
+        int maxlen1 = 0; 
+        int maxlen2 = 0;
+        
+        int product = 0 ;
+        for(int i = 0 ; i< n ; i++){
+            for(int j = i ; j<n ; j++){
+                String curr = words[i];
+                String temp = words[j];
+                int x1 = curr.length();
+                int x2 = temp.length();
+                if(x1>maxlen1 || x2>maxlen2){
+                    if(isdiffer(curr , temp)){
+                        product = Math.max(product , x1 * x2) ;
+                    }
+                }
+            }
+        }
+        return product ;
+    }
+    private boolean isdiffer(String curr , String temp){
+        boolean[] arr = new boolean[26];
+        for(char ch : curr.toCharArray()){
+            arr[ch -'a'] = true ;
+        }
+        for(char ch : temp.toCharArray()){
+            if(arr[ch -'a']){
+                return false ;
+            }
+        }
+        return true ;
+    }
+}
