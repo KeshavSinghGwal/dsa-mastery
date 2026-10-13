@@ -1,0 +1,22 @@
+class Solution {
+    public long maxAlternatingSum(int[] nums) {
+        int n = nums.length ;
+        long[] arr = new long[n];
+        for(int i = 0 ; i< n ; i++){
+            arr[i] = (long)nums[i]* nums[i];
+        }
+        Arrays.sort(arr);
+        int i = 0 ; 
+        long sum = 0 ;
+        int j = n-1;
+        while(i<=j ){
+            sum += arr[j--];
+            
+            if(i<=j){
+                sum -= arr[i++];
+                   
+            }
+        }
+        return sum ;
+    }
+}
