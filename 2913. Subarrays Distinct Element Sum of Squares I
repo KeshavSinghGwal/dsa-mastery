@@ -1,0 +1,21 @@
+class Solution {
+    public int sumCounts(List<Integer> nums) {
+        int n = nums.size();
+        int sum = n;
+        for(int i = 0; i<n ; i++){
+            for(int j = i+1 ; j<n ;j++){
+                int x = distinct(i,j,nums);
+                sum += x*x ;
+            }
+        }
+        return sum ;
+    }
+    private int distinct(int i , int j , List<Integer> nums){
+         HashSet<Integer> set = new HashSet<>();
+         
+         for(int a = i ; a<=j; a++){
+            set.add(nums.get(a));
+         }
+         return set.size() ;
+    }
+}
