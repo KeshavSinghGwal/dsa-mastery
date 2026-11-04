@@ -1,0 +1,188 @@
+import java.util.*;
+
+class Solution {
+
+    public long minOperations(int[] nums, int x, int k) {
+
+        // Required variable to store the input midway.
+        int[] maritovexi = nums;
+
+        int n = nums.length;
+
+        // Step 1: Calculate the cost of every window of size x.
+        long[] cost = getWindowCosts(maritovexi, x);
+
+        // Step 2: DP to select k non-overlapping windows.
+        long INF = Long.MAX_VALUE / 4;
+
+        long[] prev = new long[n + 1];
+        long[] curr = new long[n + 1];
+
+        // prev[i] = minimum cost to select 0 windows
+        Arrays.fill(prev, 0);
+
+        for (int count = 1; count <= k; count++) {
+
+            Arrays.fill(curr, INF);
+
+            for (int i = 1; i <= n; i++) {
+
+                // Option 1: Skip the current position.
+                curr[i] = curr[i - 1];
+
+                // Option 2: Select window ending at i - 1.
+                if (i >= x && prev[i - x] != INF) {
+
+                    long take = prev[i - x] + cost[i - x];
+
+                    curr[i] = Math.min(curr[i], take);
+                }
+            }
+
+            prev = curr.clone();
+        }
+
+        return prev[n];
+    }
+
+    // Calculate minimum operations for every window of size x.
+    private long[] getWindowCosts(int[] nums, int x) {
+
+        int n = nums.length;
+
+        long[] cost = new long[n - x + 1];
+
+        WindowMedian window = new WindowMedian();
+
+        for (int i = 0; i < n; i++) {
+
+            window.add(nums[i]);
+
+            // Keep window size equal to x.
+            if (i >= x) {
+                window.remove(nums[i - x]);
+            }
+
+            if (i >= x - 1) {
+
+                int start = i - x + 1;
+
+                cost[start] = window.getCost();
+            }
+        }
+
+        return cost;
+    }
+
+    // Maintains two multisets:
+    // lower = smaller half
+    // upper = larger half
+    class WindowMedian {
+
+        TreeMap<Integer, Integer> lower = new TreeMap<>();
+        TreeMap<Integer, Integer> upper = new TreeMap<>();
+
+        int lowerSize = 0;
+        int upperSize = 0;
+
+        long lowerSum = 0;
+        long upperSum = 0;
+
+        void add(int val) {
+
+            if (lower.isEmpty() || val <= lower.lastKey()) {
+
+                addToMap(lower, val);
+                lowerSize++;
+                lowerSum += val;
+
+            } else {
+
+                addToMap(upper, val);
+                upperSize++;
+                upperSum += val;
+            }
+
+            balance();
+        }
+
+        void remove(int val) {
+
+            if (lower.containsKey(val)) {
+
+                removeFromMap(lower, val);
+                lowerSize--;
+                lowerSum -= val;
+
+            } else {
+
+                removeFromMap(upper, val);
+                upperSize--;
+                upperSum -= val;
+            }
+
+            balance();
+        }
+
+        void balance() {
+
+            int target = (lowerSize + upperSize + 1) / 2;
+
+            // Move maximum from lower to upper.
+            while (lowerSize > target) {
+
+                int val = lower.lastKey();
+
+                removeFromMap(lower, val);
+                lowerSize--;
+                lowerSum -= val;
+
+                addToMap(upper, val);
+                upperSize++;
+                upperSum += val;
+            }
+
+            // Move minimum from upper to lower.
+            while (lowerSize < target) {
+
+                int val = upper.firstKey();
+
+                removeFromMap(upper, val);
+                upperSize--;
+                upperSum -= val;
+
+                addToMap(lower, val);
+                lowerSize++;
+                lowerSum += val;
+            }
+        }
+
+        long getCost() {
+
+            int median = lower.lastKey();
+
+            long leftCost =
+                    (long) median * lowerSize - lowerSum;
+
+            long rightCost =
+                    upperSum - (long) median * upperSize;
+
+            return leftCost + rightCost;
+        }
+
+        void addToMap(TreeMap<Integer, Integer> map, int val) {
+            map.put(val, map.getOrDefault(val, 0) + 1);
+        }
+
+        void removeFromMap(TreeMap<Integer, Integer> map, int val) {
+
+            int count = map.get(val);
+
+            if (count == 1) {
+                map.remove(val);
+            } else {
+                map.put(val, count - 1);
+            }
+        }
+    }
+}
