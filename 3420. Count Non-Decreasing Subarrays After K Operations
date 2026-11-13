@@ -1,0 +1,51 @@
+class Solution {
+    public long countNonDecreasingSubarrays(int[] nums, int k) {
+
+        int n = nums.length;
+
+        long ans = 0;
+        long cost = 0;
+
+        Deque<int[]> dq = new ArrayDeque<>();
+
+        int j = n - 1;
+
+        for (int i = n - 1; i >= 0; i--) {
+
+            int num = nums[i];
+            int cnt = 1;
+            while (!dq.isEmpty() && dq.peekLast()[0] < num) {
+
+                int[] temp = dq.pollLast();
+
+                int nextNum = temp[0];
+                int nextCount = temp[1];
+
+                cnt += nextCount;
+
+                cost += (long) (num - nextNum) * nextCount;
+            }
+
+            dq.offerLast(new int[]{num, cnt});
+            while (cost > k) {
+
+                int[] temp = dq.pollFirst();
+
+                int rightmostNum = temp[0];
+                int rightmostCount = temp[1];
+
+                cost -= rightmostNum - nums[j];
+                j--;
+
+                if (rightmostCount > 1) {
+                    dq.offerFirst(
+                        new int[]{rightmostNum, rightmostCount - 1}
+                    );
+                }
+            }
+            ans += j - i + 1;
+        }
+
+        return ans;
+    }
+}
